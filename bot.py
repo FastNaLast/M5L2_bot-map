@@ -17,8 +17,10 @@ def handle_help(message):
 @bot.message_handler(commands=['show_city'])
 def handle_show_city(message):
     city_name = message.text.split()[-1]
-    # Реализуй отрисовку города по запросу
-
+    user_id = message.chat.id
+    manager.create_graph(f'{user_id}.png',[city_name])
+    with open(f'{user_id}.png', 'rb')as map:
+        bot.send_photo(user_id, map)
 
 @bot.message_handler(commands=['remember_city'])
 def handle_remember_city(message):
@@ -32,8 +34,12 @@ def handle_remember_city(message):
 @bot.message_handler(commands=['show_my_cities'])
 def handle_show_visited_cities(message):
     cities = manager.select_cities(message.chat.id)
-    # Реализуй отрисовку всех городов
-
+    if cities:
+        manager.create_graph(f'{message.chat.id}_cities.png',cities)
+        with open(f'{message.chat.id}_cities.png','rb') as map:
+            bot.send_photo(message.chat.id, map)
+    else:
+        bot.send_message(message.chat.id,"Нету сохраненных городов")
 
 if __name__=="__main__":
     manager = DB_Map(DATABASE)
